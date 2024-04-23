@@ -3,20 +3,11 @@ import json
 import sys
 import os
 import re
-from my_package.mail_ing import mailing
+from mail_ing import mailing
 
 class user_manage:
-    # bash_script_path = "group.sh"  # Define the path to the Bash script
 
-    # output = subprocess.check_output(["bash", bash_script_path])    # Execute the Bash script and capture its output
-
-    # lines = output.decode().split("\n") # Convert the byte output to string and split it into lines
-
-    # lines = [line for line in lines if line]    # Remove any empty lines
-
-    # # Hdr_row=['Username', 'Password', 'Firstname', 'Lastname', "Email id"]
-
-    # Get the JSON array from the command-line arguments
+    mail=mailing()
     def file_edit(self,arr, filename, mode):
         with open(filename, mode, newline='') as csvfile:
             csvwriter = csv.writer(csvfile)
@@ -38,18 +29,19 @@ class user_manage:
             reader = csv.DictReader(csvfile)
             for row in reader:
                 if row['Username'] == user:
-                    if re.match('[bfj]',opt):
-                        mailing.vpn_mail(user,password,row['Email_id'])
+                    if re.match('[bdfhjl]',opt):
+                        self.mail.vpn_mail(user,password,row['Email_id'])
                     elif re.match('[aei]',opt):
-                        mailing.vpn_mail(user,password,row['Email_id'])
+                        self.mail.irage_wifi_mail(user,password,row['Email_id'])
                     elif re.match('[cgk]',opt):
-                        mailing.vpn_mail(user,password,row['Email_id'])
+                        self.mail.qi_wifi_mail(user,password,row['Email_id'])
 
-
+if __name__ == "__main__":
+    um=user_manage()
     json_array = sys.argv[1]
     file = sys.argv[2]
     option=sys.argv[3]
-    header = ['Username','Firstname','Lastname','Email id']
+    header = ['Username','Firstname','Lastname','Email_id']
 
     # Parse the JSON array into a Python list
     my_array = json.loads(json_array)
@@ -57,39 +49,39 @@ class user_manage:
     if re.match('[a-di-l]', option):
 
         list1 = []
-        list2 = []
         for data in my_array:
             elements = data.split(',')  # Split the data by comma
+            # print('0: %s 1: %s 2: %s 3: %s 4: %s', elements[0], elements[1], elements[2], elements[3], elements[4])
             # Append Username, Firstname, Lastname, Email id to list1
             list1.append([elements[0], elements[2], elements[3], elements[4]])
             # Append Username, Password, Email id to list2
-            if re.match('[bfj]',option):
-                mailing.vpn_mail(elements[0], elements[1], elements[4])
-            elif re.match('[aei]',option):
-                mailing.irage_wifi_mail(elements[0], elements[1], elements[4])
-            elif re.match('[cgk]',option):
-                mailing.qi_wifi_mail(elements[0], elements[1], elements[4])
+            if re.match('^[bdfhjl]$',option):
+                um.mail.vpn_mail(elements[0], elements[1], elements[4])
+            elif re.match('^[aei]$',option):
+                um.mail.irage_wifi_mail(elements[0], elements[1], elements[4])
+            elif re.match('^[cgk]$',option):
+                um.mail.qi_wifi_mail(elements[0], elements[1], elements[4])
 
         if os.path.exists(file) and os.stat(file).st_size > 0:  # Check if file exists and is not empty
-            file_edit(list1,file,'a')
+            um.file_edit(list1,file,'a')
         else:
             list1.insert(0, header)  # Insert header at the beginning
-            file_edit(list1,file,'w')
+            um.file_edit(list1,file,'w')
     
     elif option == 'm':
         file_paths = [
-            os.getcwd() + "/irage_server_and_wifi_user_details.csv",
-            os.getcwd() + "/irage_vpn_user_details.csv",
-            os.getcwd() + "/qi_wifi_user_details.csv",
-            os.getcwd() + "/qi_vpn_user_details.csv"
+            "/home/admin_dir/my_package/irage_server_and_wifi_user_details.csv",
+            "/home/admin_dir/my_package/irage_vpn_user_details.csv",
+            "/home/admin_dir/my_package/qi_wifi_user_details.csv",
+            "/home/admin_dir/my_package/qi_vpn_user_details.csv"
         ]
 
         for file_path in file_paths:
             for username in my_array:
-                remove_username_from_file(file_path, username)
+                um.remove_username_from_file(file_path, username)
 
     elif re.match('[e-h]', option):
         for data in my_array:
             element = data.split(',')
-            changing_password(element[0],element[1],file,option)
+            um.changing_password(element[0],element[1],file,option)
 

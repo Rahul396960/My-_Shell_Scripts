@@ -3,18 +3,19 @@ import json
 import sys
 import os
 import re
-from mail_ing import mailing as mail
+from mail_ing import mailing
 
-class UserManager:
+class user_manage:
 
-    def file_edit(arr, filename, mode):
+    mail=mailing()
+    def file_edit(self,arr, filename, mode):
         with open(filename, mode, newline='') as csvfile:
             csvwriter = csv.writer(csvfile)
             for line in arr:
                 csvwriter.writerow(line)  # write data
                 print(line)
 
-    def remove_username_from_file(file_path, username):
+    def remove_username_from_file(self,file_path, username):
         with open(file_path, 'r') as csvfile:
             lines = csvfile.readlines()
         
@@ -23,20 +24,20 @@ class UserManager:
                 if username not in line:
                     csvfile.write(line)
 
-    def changing_password(user,password,file_path,opt):
+    def changing_password(self,user,password,file_path,opt):
         with open(file_path, 'r', newline='') as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
                 if row['Username'] == user:
-                    if re.match('[fh]',opt):
-                        mail.vpn_mail(user,password,row['Email_id'])
-                    elif re.match('[e]',opt):
-                        mail.irage_wifi_mail(user,password,row['Email_id'])
-                    elif re.match('[g]',opt):
-                        mail.qi_wifi_mail(user,password,row['Email_id'])
+                    if re.match('[bdfhjl]',opt):
+                        self.mail.vpn_mail(user,password,row['Email_id'])
+                    elif re.match('[aei]',opt):
+                        self.mail.irage_wifi_mail(user,password,row['Email_id'])
+                    elif re.match('[cgk]',opt):
+                        self.mail.qi_wifi_mail(user,password,row['Email_id'])
 
 if __name__ == "__main__":
-    um=UserManager()
+    um=user_manage()
     json_array = sys.argv[1]
     file = sys.argv[2]
     option=sys.argv[3]
@@ -55,11 +56,11 @@ if __name__ == "__main__":
             list1.append([elements[0], elements[2], elements[3], elements[4]])
             # Append Username, Password, Email id to list2
             if re.match('^[bdfhjl]$',option):
-                mail.vpn_mail(elements[0], elements[1], elements[4])
+                um.mail.vpn_mail(elements[0], elements[1], elements[4])
             elif re.match('^[aei]$',option):
-                mail.irage_wifi_mail(elements[0], elements[1], elements[4])
+                um.mail.irage_wifi_mail(elements[0], elements[1], elements[4])
             elif re.match('^[cgk]$',option):
-                mail.qi_wifi_mail(elements[0], elements[1], elements[4])
+                um.mail.qi_wifi_mail(elements[0], elements[1], elements[4])
 
         if os.path.exists(file) and os.stat(file).st_size > 0:  # Check if file exists and is not empty
             um.file_edit(list1,file,'a')
